@@ -2,7 +2,7 @@
   "name": "chat-room",
   "version": "0.1.0",
   "private": true,
-  "homepage": "./ReactChatRoomV1.0/",
+  "homepage": "http://RexxxHung.github.io/ReactChatRoomV1.0",
   "dependencies": {
     "@craco/craco": "^6.3.0",
     "@emotion/react": "^11.4.1",
@@ -35,6 +35,7 @@
     "build": "craco build",
     "test": "craco test",
     "eject": "react-scripts eject",
+    "predeploy": "yarn run build",
     "deploy": "gh-pages -d build"
   },
   "eslintConfig": {
