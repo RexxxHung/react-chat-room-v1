@@ -2,7 +2,7 @@
   "name": "chat-room",
   "version": "0.1.0",
   "private": true,
-  "homepage": "./",
+  "homepage": "./ReactChatRoomV1.0/",
   "dependencies": {
     "@craco/craco": "^6.3.0",
     "@emotion/react": "^11.4.1",
