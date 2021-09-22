@@ -242,7 +242,14 @@ const Chat = () => {
       setLoading((preVal) => (preVal = false));
     }, 2000);
 
-    return () => newSocket.close();
+    return () => {
+      ws.emit("exitChatRoom", {
+        id,
+        name: location.state.name,
+      });
+
+      newSocket.close();
+    };
   }, []);
 
   return (
