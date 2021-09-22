@@ -9,6 +9,8 @@ import defaultUser from "../../assets/images/defaultUser.png";
 import Button from "@material-ui/core/Button";
 import { Link } from "react-router-dom";
 
+import { Socket } from "socket.io-client";
+
 import moment from "moment";
 
 const ContainerDivStyled = styled.div`
@@ -135,13 +137,25 @@ const ToolBarDivStyled = styled.div`
 `;
 
 // TS
+type locationType = {
+  name: string;
+};
+
 const Chat = () => {
-  const location = useLocation();
+  const location = useLocation<locationType>();
   const history = useHistory();
   const [loading, setLoading] = useState(false);
-  const [ws, setWs] = useState(null);
-  const [messages, setMessages] = useState([]);
-  const [id, setId] = useState(null);
+  const [ws, setWs] = useState<null | Socket>(null);
+  const [messages, setMessages] = useState<
+    | {
+        message: string;
+        crated: string;
+        name: string;
+        date: string;
+      }[]
+    | []
+  >([]);
+  const [id, setId] = useState<string | null>(null);
   const [inputMsg, setInputMsg] = useState("");
 
   useEffect(() => {
@@ -174,45 +188,47 @@ const Chat = () => {
 
     console.log(messages);
 
-    setId((preVal) => (preVal = uuid));
-    //對 getMessage 設定監聽，如果 server 有透過 getMessage 傳送訊息，將會在此被捕捉
-    ws.emit("joinChatRoom", {
-      id: uuid,
-      name: location.state.name,
-    });
+    setId((preVal: any) => (preVal = uuid));
+    if (ws) {
+      //對 getMessage 設定監聽，如果 server 有透過 getMessage 傳送訊息，將會在此被捕捉
+      ws.emit("joinChatRoom", {
+        id: uuid,
+        name: location.state.name,
+      });
 
-    // 訊息事件
-    ws.on("getAllMessage", (data) => {
-      console.log("訊息事件:", data);
+      // 訊息事件
+      ws.on("getAllMessage", (data: any) => {
+        console.log("訊息事件:", data);
 
-      const { id, name, message, date } = data;
+        const { id, name, message, date } = data;
 
-      setMessages((preVal) => [
-        ...preVal,
-        {
-          message,
-          crated: id,
-          name,
-          date,
-        },
-      ]);
-    });
+        setMessages((preVal: any) => [
+          ...preVal,
+          {
+            message,
+            crated: id,
+            name,
+            date,
+          },
+        ]);
+      });
 
-    // 公告事件
-    ws.on("announcement", (data) => {
-      console.log("公告事件:", data);
+      // 公告事件
+      ws.on("announcement", (data: any) => {
+        console.log("公告事件:", data);
 
-      const { message, crated, name } = data;
-      setMessages((preVal) => [
-        ...preVal,
-        {
-          message,
-          crated,
-          name,
-          date: null,
-        },
-      ]);
-    });
+        const { message, crated, name } = data;
+        setMessages((preVal: any) => [
+          ...preVal,
+          {
+            message,
+            crated,
+            name,
+            date: null,
+          },
+        ]);
+      });
+    }
   };
 
   // const sendMessage = () => {
@@ -226,7 +242,7 @@ const Chat = () => {
     if (!location.state || !location.state.name) {
       history.push("/");
     }
-    setLoading((preVal) => (preVal = true));
+    setLoading((preVal: any) => (preVal = true));
 
     const newSocket = webSocket(
       process.env.REACT_APP_API_DOMAIN
@@ -239,15 +255,16 @@ const Chat = () => {
 
     setTimeout(() => {
       setWs(newSocket);
-      setLoading((preVal) => (preVal = false));
+      setLoading((preVal: any) => (preVal = false));
     }, 2000);
 
     return () => {
-      ws.emit("exitChatRoom", {
-        id,
-        name: location.state.name,
-      });
-
+      if (ws) {
+        ws.emit("exitChatRoom", {
+          id,
+          name: location.state.name,
+        });
+      }
       newSocket.close();
     };
   }, []);
@@ -309,18 +326,18 @@ const Chat = () => {
         />
         <div className="buttonDiv">
           <Button
-            loading={loading}
             variant="contained"
             onClick={() => {
               if (!inputMsg || loading) return;
 
-              ws.emit("sendMessage", {
-                id: id,
-                name: location.state.name,
-                message: inputMsg,
-                date: moment().format("YYYY-MM-DD HH:mm:ss"),
-              });
-
+              if (ws) {
+                ws.emit("sendMessage", {
+                  id: id,
+                  name: location.state.name,
+                  message: inputMsg,
+                  date: moment().format("YYYY-MM-DD HH:mm:ss"),
+                });
+              }
               setInputMsg((preVal) => (preVal = ""));
             }}
           >

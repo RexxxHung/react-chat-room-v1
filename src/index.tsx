@@ -5,7 +5,7 @@ import App from "./App";
 import Chat from "./pages/chat/index";
 import reportWebVitals from "./reportWebVitals";
 
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import { HashRouter as Router, Switch, Route } from "react-router-dom";
 
 ReactDOM.render(
   <React.StrictMode>
