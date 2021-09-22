@@ -9,7 +9,7 @@ import { HashRouter as Router, Switch, Route } from "react-router-dom";
 
 ReactDOM.render(
   <React.StrictMode>
-    <Router>
+    <Router basename="/react-chat-room-v1">
       <Switch>
         <Route path="/" exact>
           <App />
